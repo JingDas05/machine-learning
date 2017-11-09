@@ -1,3 +1,4 @@
+# -*- coding: UTF-8 -*-
 '''
 Created on Sep 16, 2010
 kNN: k Nearest Neighbors
@@ -17,8 +18,14 @@ import operator
 from os import listdir
 
 
+# inX 用于分类的向量
+# dataSet 输入的训练样本集
+# labels 标签向量
+# k 选择最近邻居的数目
 def classify0(inX, dataSet, labels, k):
+    # 获取dataSet行数
     dataSetSize = dataSet.shape[0]
+    # 调用tile函数
     diffMat = tile(inX, (dataSetSize, 1)) - dataSet
     sqDiffMat = diffMat ** 2
     sqDistances = sqDiffMat.sum(axis=1)
@@ -36,6 +43,10 @@ def createDataSet():
     group = array([[1.0, 1.1], [1.0, 1.0], [0, 0], [0, 0.1]])
     labels = ['A', 'A', 'B', 'B']
     return group, labels
+
+
+group, labels = createDataSet()
+print(classify0([0, 0], group, labels, 3))
 
 
 def file2matrix(filename):
