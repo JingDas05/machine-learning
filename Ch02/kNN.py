@@ -25,15 +25,25 @@ from os import listdir
 def classify0(inX, dataSet, labels, k):
     # 获取dataSet行数
     dataSetSize = dataSet.shape[0]
-    # 调用tile函数
+    # 调用tile函数,生成目标矩阵，之后与数据集相减
     diffMat = tile(inX, (dataSetSize, 1)) - dataSet
+    # 平方
     sqDiffMat = diffMat ** 2
+    # axis=0 是按行求和， axis=1是按列求和
     sqDistances = sqDiffMat.sum(axis=1)
+    # 开方
     distances = sqDistances ** 0.5
+    print distances
+    # 对于数组排序，并且返回相对应的index
     sortedDistIndicies = distances.argsort()
+    print sortedDistIndicies
+    # 定义字典
     classCount = {}
+    # range(k) 生成 0, 1, 2
     for i in range(k):
         voteIlabel = labels[sortedDistIndicies[i]]
+        print sortedDistIndicies[i]
+        print voteIlabel
         classCount[voteIlabel] = classCount.get(voteIlabel, 0) + 1
     sortedClassCount = sorted(classCount.iteritems(), key=operator.itemgetter(1), reverse=True)
     return sortedClassCount[0][0]
