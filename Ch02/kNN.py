@@ -33,19 +33,19 @@ def classify0(inX, dataSet, labels, k):
     sqDistances = sqDiffMat.sum(axis=1)
     # 开方
     distances = sqDistances ** 0.5
-    print distances
-    # 对于数组排序，并且返回相对应的index
+    # 对于数组排序，并且按照升序返回相对应的index
     sortedDistIndicies = distances.argsort()
-    print sortedDistIndicies
     # 定义字典
     classCount = {}
-    # range(k) 生成 0, 1, 2
+    # range(k) 生成 0, 1, 2，对前k名的标签进行计数，存储到classCount中，key是label,value是出现的个数
     for i in range(k):
         voteIlabel = labels[sortedDistIndicies[i]]
-        print sortedDistIndicies[i]
-        print voteIlabel
+        # 如果存在取值加1，如果不存在，取默认值之后再加1
         classCount[voteIlabel] = classCount.get(voteIlabel, 0) + 1
+    # 调用sorted函数，对字典进行排序，排序的字段是value(引用了操作符模块的功能)，默认是升序，这里reverse=True，为降序
+    # 根据出现的次数降序，不改变原数组
     sortedClassCount = sorted(classCount.iteritems(), key=operator.itemgetter(1), reverse=True)
+    # 返回出现次数最多的标签
     return sortedClassCount[0][0]
 
 
