@@ -13,9 +13,10 @@ Output:     the most popular class label
 @author: pbharrin
 '''
 from numpy import *
-
 import operator
 from os import listdir
+import matplotlib
+import matplotlib.pyplot as plt
 
 
 # inX 用于分类的向量
@@ -55,25 +56,36 @@ def createDataSet():
     return group, labels
 
 
-group, labels = createDataSet()
-print(classify0([0, 0], group, labels, 3))
+# group, labels = createDataSet()
+# print(classify0([0, 0], group, labels, 3))
 
-
+# 构建约会网站的测试样本
 def file2matrix(filename):
     fr = open(filename)
-    numberOfLines = len(fr.readlines())  # get the number of lines in the file
-    returnMat = zeros((numberOfLines, 3))  # prepare matrix to return
-    classLabelVector = []  # prepare labels return
+    # 获取文件的行数
+    numberOfLines = len(fr.readlines())
+    # 准备返回的矩阵
+    returnMat = zeros((numberOfLines, 3))
+    # 准备返回标签
+    classLabelVector = []
     fr = open(filename)
     index = 0
     for line in fr.readlines():
+        # 去除头尾 \t字符
         line = line.strip()
+        # 根据 \t 分隔字符，返回数组
         listFromLine = line.split('\t')
+        # 将 listFromLine[0:3] 追加到 returnMat 中，索引是index
         returnMat[index, :] = listFromLine[0:3]
+        # 将listFromLine的最后一列转化成int型追加到classLabelVector中，构建标签列
         classLabelVector.append(int(listFromLine[-1]))
         index += 1
     return returnMat, classLabelVector
 
+
+# datingDataMat, datingLabels = file2matrix('data/datingTestSet2.txt')
+# print datingDataMat
+# print datingLabels
 
 def autoNorm(dataSet):
     minVals = dataSet.min(0)
