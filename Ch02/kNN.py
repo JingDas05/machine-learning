@@ -83,32 +83,53 @@ def file2matrix(filename):
     return returnMat, classLabelVector
 
 
-# datingDataMat, datingLabels = file2matrix('data/datingTestSet2.txt')
+datingDataMat, datingLabels = file2matrix('data/datingTestSet2.txt')
+
+
 # print datingDataMat
 # print datingLabels
 
+# 自动将数字特征值转化为0到1的区间，计算公式为 newValue = (oldValue-min)/(max-min)
 def autoNorm(dataSet):
+    # 选取列的最小值
     minVals = dataSet.min(0)
+    # 选取列的最大值
     maxVals = dataSet.max(0)
     ranges = maxVals - minVals
+    # 构建零矩阵，行列数与dataSet相同
     normDataSet = zeros(shape(dataSet))
+    # 获取矩阵行数
     m = dataSet.shape[0]
+    # 计算 oldValue-min
     normDataSet = dataSet - tile(minVals, (m, 1))
-    normDataSet = normDataSet / tile(ranges, (m, 1))  # element wise divide
-    return normDataSet, ranges, minVals
+    # 计算 (oldValue-min)/(max-min)
+    normDataSet = normDataSet / tile(ranges, (m, 1))
+    return normDataSet, ranges, minVals, maxVals
+
+
+# norMat, ranges, minVals, maxVals = autoNorm(datingDataMat)
+# print norMat
+# print ranges
+# print minVals
+# print maxVals
 
 
 def datingClassTest():
-    hoRatio = 0.50  # hold out 10%
-    datingDataMat, datingLabels = file2matrix('datingTestSet2.txt')  # load data setfrom file
-    normMat, ranges, minVals = autoNorm(datingDataMat)
+    hoRatio = 0.10  # hold out 10%
+    # 从文件中加载数据
+    datingDataMat, datingLabels = file2matrix('data/datingTestSet2.txt')
+    # 数值归一化
+    normMat, ranges, minVals, maxVals = autoNorm(datingDataMat)
+    # 获取数据集行数
     m = normMat.shape[0]
+    # 测试的行数
     numTestVecs = int(m * hoRatio)
     errorCount = 0.0
     for i in range(numTestVecs):
         classifierResult = classify0(normMat[i, :], normMat[numTestVecs:m, :], datingLabels[numTestVecs:m], 3)
         print
         "the classifier came back with: %d, the real answer is: %d" % (classifierResult, datingLabels[i])
+        # 如果判断的标签和数据集里面的不一致,就将 errorCount 加1
         if (classifierResult != datingLabels[i]): errorCount += 1.0
     print
     "the total error rate is: %f" % (errorCount / float(numTestVecs))
@@ -116,11 +137,15 @@ def datingClassTest():
     errorCount
 
 
+# datingClassTest()
+
 def img2vector(filename):
     returnVect = zeros((1, 1024))
     fr = open(filename)
+    # 循环读取32行
     for i in range(32):
         lineStr = fr.readline()
+        # 对于每一行的数据添加到 1x1024矩阵中
         for j in range(32):
             returnVect[0, 32 * i + j] = int(lineStr[j])
     return returnVect
@@ -128,28 +153,43 @@ def img2vector(filename):
 
 def handwritingClassTest():
     hwLabels = []
-    trainingFileList = listdir('trainingDigits')  # load the training set
+    # 加载训练数据集
+    trainingFileList = listdir('digits/trainingDigits')
     m = len(trainingFileList)
     trainingMat = zeros((m, 1024))
+    # 循环读取所有的数据集
     for i in range(m):
+        # 获取文件名
         fileNameStr = trainingFileList[i]
-        fileStr = fileNameStr.split('.')[0]  # take off .txt
+        # 去除掉 .txt
+        fileStr = fileNameStr.split('.')[0]
+        # 获取实际的数字值
         classNumStr = int(fileStr.split('_')[0])
+        # 追加数字
         hwLabels.append(classNumStr)
-        trainingMat[i, :] = img2vector('trainingDigits/%s' % fileNameStr)
-    testFileList = listdir('testDigits')  # iterate through the test set
+        # 赋值,trainingMat的第i行的所有列等于1x1024的矩阵
+        trainingMat[i, :] = img2vector('digits/trainingDigits/%s' % fileNameStr)
+    # 循环迭代 获取测试数据集
+    testFileList = listdir('digits/testDigits')
     errorCount = 0.0
     mTest = len(testFileList)
     for i in range(mTest):
         fileNameStr = testFileList[i]
-        fileStr = fileNameStr.split('.')[0]  # take off .txt
+        # 去除掉 .txt 后缀
+        fileStr = fileNameStr.split('.')[0]
         classNumStr = int(fileStr.split('_')[0])
-        vectorUnderTest = img2vector('testDigits/%s' % fileNameStr)
+        # 转化成1x1024向量,作为查询参数
+        vectorUnderTest = img2vector('digits/testDigits/%s' % fileNameStr)
+        # knn算法,获取数字
         classifierResult = classify0(vectorUnderTest, trainingMat, hwLabels, 3)
         print
         "the classifier came back with: %d, the real answer is: %d" % (classifierResult, classNumStr)
+        # 如果knn计算出来的数字不等于实际的数字,errorCount 加1
         if (classifierResult != classNumStr): errorCount += 1.0
     print
     "\nthe total number of errors is: %d" % errorCount
     print
     "\nthe total error rate is: %f" % (errorCount / float(mTest))
+
+
+handwritingClassTest()
