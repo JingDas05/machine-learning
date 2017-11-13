@@ -19,7 +19,7 @@ def createDataSet():
     return dataSet, labels
 
 
-# 计算给定数据值的香农熵
+# 计算给定数据集的香农熵
 def calcShannonEnt(dataSet):
     numEntries = len(dataSet)
     labelCounts = {}
@@ -42,7 +42,7 @@ def calcShannonEnt(dataSet):
     return shannonEnt
 
 
-# 按照给定特征划分数据集
+# 按照给定特征划分数据集,就是找到每行的 第 axis 个数，之后将第 axis 个数去掉，同时将本行数据添加到集合中返回
 # dataSet 待划分的数据集
 # axis 划分数据集的特征
 # value 特征的返回值
@@ -59,24 +59,39 @@ def splitDataSet(dataSet, axis, value):
     return retDataSet
 
 
+# myDat, labels = createDataSet()
+# print myDat
+# print labels
+# 找到第0项是1的并且把这项去掉
+# print splitDataSet(myDat, 0, 1)
+
+# 总体思想就是对于数据的每一列,出去掉求熵,比基础数据集的熵减少最多的那列就是特征列
 def chooseBestFeatureToSplit(dataSet):
-    numFeatures = len(dataSet[0]) - 1  # the last column is used for the labels
-    baseEntropy = calcShannonEnt(dataSet)
-    bestInfoGain = 0.0;
+    numFeatures = len(dataSet[0]) - 1  # the last column is used for the labels 最后一行被当作标签列
+    baseEntropy = calcShannonEnt(dataSet) # 初始香农熵
+    bestInfoGain = 0.0
     bestFeature = -1
     for i in range(numFeatures):  # iterate over all the features
-        featList = [example[i] for example in dataSet]  # create a list of all the examples of this feature
+        featList = [example[i] for example in dataSet] # create a list of all the examples of this feature 获取dataSet中所有行的第i列，组成数组并且赋值给 featList
+        # 去同
         uniqueVals = set(featList)  # get a set of unique values
+        # 初始化熵值
         newEntropy = 0.0
-        for value in uniqueVals:
-            subDataSet = splitDataSet(dataSet, i, value)
-            prob = len(subDataSet) / float(len(dataSet))
-            newEntropy += prob * calcShannonEnt(subDataSet)
+        for value in uniqueVals:  # 循环遍历所选列的所有值
+            subDataSet = splitDataSet(dataSet, i, value)  # 切分数据集，找到dataSet第i列的值等于value，去除value,返回数据集
+            prob = len(subDataSet) / float(len(dataSet))  # 计算 dataSet第i列的值等于value 出现的概率
+            newEntropy += prob * calcShannonEnt(subDataSet)  # 计算香农熵
+        # 计算熵减
         infoGain = baseEntropy - newEntropy  # calculate the info gain; ie reduction in entropy
+        # 如果熵减小的比以前多,那么这就是最好的划分
         if (infoGain > bestInfoGain):  # compare this to the best gain so far
             bestInfoGain = infoGain  # if better than current best, set to best
             bestFeature = i
     return bestFeature  # returns an integer
+
+
+myDat, labels = createDataSet()
+print chooseBestFeatureToSplit(myDat)
 
 
 def majorityCnt(classList):
