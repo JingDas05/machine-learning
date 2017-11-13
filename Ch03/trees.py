@@ -42,13 +42,20 @@ def calcShannonEnt(dataSet):
     return shannonEnt
 
 
+# 按照给定特征划分数据集
+# dataSet 待划分的数据集
+# axis 划分数据集的特征
+# value 特征的返回值
 def splitDataSet(dataSet, axis, value):
     retDataSet = []
     for featVec in dataSet:
         if featVec[axis] == value:
-            reducedFeatVec = featVec[:axis]  # chop out axis used for splitting
+            # chop out axis used for splitting
+            # 去除特征值
+            reducedFeatVec = featVec[:axis]
             reducedFeatVec.extend(featVec[axis + 1:])
             retDataSet.append(reducedFeatVec)
+    # 返回新数组
     return retDataSet
 
 
