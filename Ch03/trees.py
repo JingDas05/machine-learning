@@ -78,7 +78,7 @@ def chooseBestFeatureToSplit(dataSet):
         # 初始化熵值
         newEntropy = 0.0
         for value in uniqueVals:  # 循环遍历所选列的所有值
-            subDataSet = splitDataSet(dataSet, i, value)  # 切分数据集，找到dataSet第i列的值等于value，去除value,返回数据集
+            subDataSet = splitDataSet(dataSet, i, value)  # 切分数据集，找到dataSet第i列的值等于value的数据行，去除value,返回过滤后的数据集
             prob = len(subDataSet) / float(len(dataSet))  # 计算 dataSet第i列的值等于value 出现的概率
             newEntropy += prob * calcShannonEnt(subDataSet)  # 计算香农熵
         # 计算熵减
@@ -93,18 +93,20 @@ def chooseBestFeatureToSplit(dataSet):
 myDat, labels = createDataSet()
 print chooseBestFeatureToSplit(myDat)
 
-
+# 与第2章的classify0部分的投票表决代码类似,找出数组classList中出现次数最多的元素
 def majorityCnt(classList):
     classCount = {}
     for vote in classList:
         if vote not in classCount.keys(): classCount[vote] = 0
         classCount[vote] += 1
+    # 字典classCount按照value值降序排序，获取value最大的键值对
     sortedClassCount = sorted(classCount.iteritems(), key=operator.itemgetter(1), reverse=True)
     return sortedClassCount[0][0]
 
-
+# 递归建树
 def createTree(dataSet, labels):
     classList = [example[-1] for example in dataSet]
+    # 递归停止条件
     if classList.count(classList[0]) == len(classList):
         return classList[0]  # stop splitting when all of the classes are equal
     if len(dataSet[0]) == 1:  # stop splitting when there are no more features in dataSet

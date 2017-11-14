@@ -39,6 +39,7 @@ def classify0(inX, dataSet, labels, k):
     # 定义字典
     classCount = {}
     # range(k) 生成 0, 1, 2，对前k名的标签进行计数，存储到classCount中，key是label,value是出现的个数
+    # 投票表决，出现多的就ok
     for i in range(k):
         voteIlabel = labels[sortedDistIndicies[i]]
         # 如果存在取值加1，如果不存在，取默认值之后再加1
