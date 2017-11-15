@@ -6,6 +6,7 @@ Decision Tree Source Code for Machine Learning in Action Ch. 3
 '''
 from math import log
 import operator
+import Ch03.treePlotter as treePlt
 
 
 def createDataSet():
@@ -138,17 +139,23 @@ def createTree(dataSet, labels):
     return myTree
 
 
-myDat, labels = createDataSet()
-myTree = createTree(myDat, labels)
-print myTree
+# myDat, labels = createDataSet()
+# myTree = createTree(myDat, labels)
+# print myTree
 
 
+# testVec对应着标签数组中的元素的程序表示，比如featLabels = [‘no surfacing’, 'flippers']
+# testVec = [1, 0] 代表着no surfacing出现，flippers不出现的分支
 def classify(inputTree, featLabels, testVec):
+    # 获取根节点
     firstStr = inputTree.keys()[0]
     secondDict = inputTree[firstStr]
+    # 将标签字符串转换为索引
     featIndex = featLabels.index(firstStr)
+    # 变换成程序识别的0或者1等其他与标签对应的值
     key = testVec[featIndex]
     valueOfFeat = secondDict[key]
+    # 如果是字典，递归调用
     if isinstance(valueOfFeat, dict):
         classLabel = classify(valueOfFeat, featLabels, testVec)
     else:
@@ -156,14 +163,25 @@ def classify(inputTree, featLabels, testVec):
     return classLabel
 
 
+# myDat, labels = createDataSet()
+# mytree = treePlt.retrieveTree(0)
+# classify(mytree, labels, [1, 0])
+
+# 存储树，也即序列化树
 def storeTree(inputTree, filename):
+    # python模块 pickle可以序列化对象
     import pickle
     fw = open(filename, 'w')
+    # dump 倾倒，卸下
     pickle.dump(inputTree, fw)
     fw.close()
 
-
+# 获取树，也即反序列化， grab：抢夺，抢先
 def grabTree(filename):
     import pickle
     fr = open(filename)
     return pickle.load(fr)
+
+# myTree = treePlt.retrieveTree(0)
+# storeTree(myTree, 'classifierStorage1.txt')
+print grabTree('classifierStorage1.txt')
