@@ -16,6 +16,7 @@ def createDataSet():
                [0, 1, 'no']]
     labels = ['no surfacing', 'flippers']
     # change to discrete values
+    # dataSet为当前数据集， lables 为按列的顺序的标签
     return dataSet, labels
 
 
@@ -42,7 +43,7 @@ def calcShannonEnt(dataSet):
     return shannonEnt
 
 
-# 按照给定特征划分数据集,就是找到每行的 第 axis 个数，之后将第 axis 个数去掉，同时将本行数据添加到集合中返回
+# 按照给定特征划分数据集,就是过滤出每行的第axis项是value的行，并且将每行axis项去除
 # dataSet 待划分的数据集
 # axis 划分数据集的特征
 # value 特征的返回值
@@ -65,14 +66,15 @@ def splitDataSet(dataSet, axis, value):
 # 找到第0项是1的并且把这项去掉
 # print splitDataSet(myDat, 0, 1)
 
-# 总体思想就是对于数据的每一列,出去掉求熵,比基础数据集的熵减少最多的那列就是特征列
+# 总体思想就是对于数据的每一列,去掉求熵,比基础数据集的熵减少最多的那列就是特征列
 def chooseBestFeatureToSplit(dataSet):
     numFeatures = len(dataSet[0]) - 1  # the last column is used for the labels 最后一行被当作标签列
-    baseEntropy = calcShannonEnt(dataSet) # 初始香农熵
+    baseEntropy = calcShannonEnt(dataSet)  # 初始香农熵
     bestInfoGain = 0.0
     bestFeature = -1
     for i in range(numFeatures):  # iterate over all the features
-        featList = [example[i] for example in dataSet] # create a list of all the examples of this feature 获取dataSet中所有行的第i列，组成数组并且赋值给 featList
+        featList = [example[i] for example in
+                    dataSet]  # create a list of all the examples of this feature 获取dataSet中所有行的第i列，组成数组并且赋值给 featList
         # 去同
         uniqueVals = set(featList)  # get a set of unique values
         # 初始化熵值
@@ -90,8 +92,8 @@ def chooseBestFeatureToSplit(dataSet):
     return bestFeature  # returns an integer
 
 
-myDat, labels = createDataSet()
-print chooseBestFeatureToSplit(myDat)
+# myDat, labels = createDataSet()
+# print chooseBestFeatureToSplit(myDat)
 
 # 与第2章的classify0部分的投票表决代码类似,找出数组classList中出现次数最多的元素
 def majorityCnt(classList):
@@ -103,24 +105,42 @@ def majorityCnt(classList):
     sortedClassCount = sorted(classCount.iteritems(), key=operator.itemgetter(1), reverse=True)
     return sortedClassCount[0][0]
 
-# 递归建树
+
+# 递归建树，参数为数据集和标签列表
 def createTree(dataSet, labels):
+    # classList为数据集的所有标签列
     classList = [example[-1] for example in dataSet]
     # 递归停止条件
+    # 类别完全相同时，停止划分，算法思想：标签数组中目标元素的数量等于标签数组的长度
     if classList.count(classList[0]) == len(classList):
         return classList[0]  # stop splitting when all of the classes are equal
+    # 每行元素的数量为1，也即已遍历完所有特征，无法简单的返回唯一的类标签，筛选出出现次数最多的类别作为返回值
     if len(dataSet[0]) == 1:  # stop splitting when there are no more features in dataSet
         return majorityCnt(classList)
+    # 选择特征列
     bestFeat = chooseBestFeatureToSplit(dataSet)
+    # 特征列的标签
     bestFeatLabel = labels[bestFeat]
+    # 初始化根节点
     myTree = {bestFeatLabel: {}}
+    # 删除标签数组中的已选特征值
     del (labels[bestFeat])
+    # 取出数据集中的特征值列
     featValues = [example[bestFeat] for example in dataSet]
+    # 去同
     uniqueVals = set(featValues)
     for value in uniqueVals:
+        # 复制标签，所以树不会弄乱已存在的标签，参数是按照引用方式传递的，为了保证每次调用函数createTree()时
+        # 不改变原始列表的内容
         subLabels = labels[:]  # copy all of labels, so trees don't mess up existing labels
+        # 去除掉特征列，递归构建树
         myTree[bestFeatLabel][value] = createTree(splitDataSet(dataSet, bestFeat, value), subLabels)
     return myTree
+
+
+myDat, labels = createDataSet()
+myTree = createTree(myDat, labels)
+print myTree
 
 
 def classify(inputTree, featLabels, testVec):
