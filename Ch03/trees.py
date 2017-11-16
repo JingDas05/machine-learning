@@ -176,12 +176,23 @@ def storeTree(inputTree, filename):
     pickle.dump(inputTree, fw)
     fw.close()
 
+
 # 获取树，也即反序列化， grab：抢夺，抢先
 def grabTree(filename):
     import pickle
     fr = open(filename)
     return pickle.load(fr)
 
+
 # myTree = treePlt.retrieveTree(0)
 # storeTree(myTree, 'classifierStorage1.txt')
-print grabTree('classifierStorage1.txt')
+# print grabTree('classifierStorage1.txt')
+
+# 隐形眼镜决策树
+fr = open('lenses.txt')
+# 对于每行数据，根据 \t 分隔字符
+lenses = [inst.strip().split('\t') for inst in fr.readlines()]
+lensesLabels = ['age', 'prescript', 'astigmatic', 'tearRate']
+lensesTree = createTree(lenses, lensesLabels)
+print lensesTree
+treePlt.createPlot(lensesTree)

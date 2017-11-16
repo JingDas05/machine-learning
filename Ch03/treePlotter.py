@@ -112,8 +112,8 @@ def createPlot(inTree):
     plt.show()
 
 
-myTree = retrieveTree(0)
-createPlot(myTree)
+# myTree = retrieveTree(0)
+# createPlot(myTree)
 
 # def createPlot():
 #    fig = plt.figure(1, facecolor='white')
@@ -130,3 +130,5 @@ createPlot(myTree)
 # print getTreeDepth(myTree)
 
 # createPlot(thisTree)
+
+
