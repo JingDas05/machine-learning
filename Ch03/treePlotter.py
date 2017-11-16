@@ -11,6 +11,7 @@ decisionNode = dict(boxstyle="sawtooth", fc="0.8")
 leafNode = dict(boxstyle="round4", fc="0.8")
 arrow_args = dict(arrowstyle="<-")
 
+
 # 获取叶子节点的数量，确定x轴的长度
 def getNumLeafs(myTree):
     numLeafs = 0
@@ -52,20 +53,28 @@ def plotNode(nodeTxt, centerPt, parentPt, nodeType):
                             va="center", ha="center", bbox=nodeType, arrowprops=arrow_args)
 
 
+# 在父子节点间填充文本信息 0或者1，也即箭头的中间填写
 def plotMidText(cntrPt, parentPt, txtString):
     xMid = (parentPt[0] - cntrPt[0]) / 2.0 + cntrPt[0]
     yMid = (parentPt[1] - cntrPt[1]) / 2.0 + cntrPt[1]
+    # 在xMid， yMid的位置注释文本txtString
     createPlot.ax1.text(xMid, yMid, txtString, va="center", ha="center", rotation=30)
 
 
 def plotTree(myTree, parentPt, nodeTxt):  # if the first key tells you what feat was split on
+    # 计算高度和宽度
     numLeafs = getNumLeafs(myTree)  # this determines the x width of this tree
     depth = getTreeDepth(myTree)
+    # 根节点
     firstStr = myTree.keys()[0]  # the text label for this node should be this
     cntrPt = (plotTree.xOff + (1.0 + float(numLeafs)) / 2.0 / plotTree.totalW, plotTree.yOff)
+    # 注释文本
     plotMidText(cntrPt, parentPt, nodeTxt)
+    # 画节点
     plotNode(firstStr, cntrPt, parentPt, decisionNode)
+    # 初始化分支字典
     secondDict = myTree[firstStr]
+    # 第二层下移 1.0 / plotTree.totalD
     plotTree.yOff = plotTree.yOff - 1.0 / plotTree.totalD
     for key in secondDict.keys():
         if type(secondDict[
@@ -78,21 +87,33 @@ def plotTree(myTree, parentPt, nodeTxt):  # if the first key tells you what feat
     plotTree.yOff = plotTree.yOff + 1.0 / plotTree.totalD
 
 
-# if you do get a dictonary you know it's a tree, and the first element will be another dict
+def retrieveTree(i):
+    listOfTrees = [{'no surfacing': {0: 'no', 1: {'flippers': {0: 'no', 1: 'yes'}}}},
+                   {'no surfacing': {0: 'no', 1: {'flippers': {0: {'head': {0: 'no', 1: 'yes'}}, 1: 'no'}}}}
+                   ]
+    return listOfTrees[i]
 
+
+# if you do get a dictonary you know it's a tree, and the first element will be another dict
+# 主函数，绘制x轴的范围是0.0到1.0，y轴的有效范围是0.0-1.0
 def createPlot(inTree):
     fig = plt.figure(1, facecolor='white')
     fig.clf()
     axprops = dict(xticks=[], yticks=[])
+    # **的前缀说明这个是字典，参数映射
     createPlot.ax1 = plt.subplot(111, frameon=False, **axprops)  # no ticks
     # createPlot.ax1 = plt.subplot(111, frameon=False) #ticks for demo puropses
-    plotTree.totalW = float(getNumLeafs(inTree))
-    plotTree.totalD = float(getTreeDepth(inTree))
-    plotTree.xOff = -0.5 / plotTree.totalW;
-    plotTree.yOff = 1.0;
+    # 初始化方法的全局变量
+    plotTree.totalW = float(getNumLeafs(inTree))  # 子节点的总数，树的宽度
+    plotTree.totalD = float(getTreeDepth(inTree))  # 树的深度
+    plotTree.xOff = -0.5 / plotTree.totalW  # x轴的偏移量
+    plotTree.yOff = 1.0  # y轴偏移量
     plotTree(inTree, (0.5, 1.0), '')
     plt.show()
 
+
+myTree = retrieveTree(0)
+createPlot(myTree)
 
 # def createPlot():
 #    fig = plt.figure(1, facecolor='white')
@@ -103,12 +124,6 @@ def createPlot(inTree):
 #    plt.show()
 
 # createPlot()
-
-def retrieveTree(i):
-    listOfTrees = [{'no surfacing': {0: 'no', 1: {'flippers': {0: 'no', 1: 'yes'}}}},
-                   {'no surfacing': {0: 'no', 1: {'flippers': {0: {'head': {0: 'no', 1: 'yes'}}, 1: 'no'}}}}
-                   ]
-    return listOfTrees[i]
 
 # myTree = retrieveTree(1)
 # print getNumLeafs(myTree)
