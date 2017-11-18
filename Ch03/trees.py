@@ -184,7 +184,7 @@ def grabTree(filename):
     return pickle.load(fr)
 
 
-# myTree = treePlt.retrieveTree(0)
+myTree = treePlt.retrieveTree(0)
 # storeTree(myTree, 'classifierStorage1.txt')
 # print grabTree('classifierStorage1.txt')
 
