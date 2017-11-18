@@ -86,6 +86,8 @@ listOPosts, listClasses = loadDataSet()
 myVocabList = createVocabList(listOPosts)
 trainMat = []
 for postInDoc in listOPosts:
+    print setOfWords2Vec(myVocabList, postInDoc)
+for postInDoc in listOPosts:
     trainMat.append(setOfWords2Vec(myVocabList, postInDoc))
 print trainMat
 p0v, p1v, pAb = trainNB0(trainMat, listClasses)
