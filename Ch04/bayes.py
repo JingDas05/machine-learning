@@ -29,6 +29,9 @@ def createVocabList(dataSet):
     return list(vocabSet)
 
 
+# vocabList为输入参数，需要判定的数组
+# inputSet为所有词的集合
+# 如果在 vocabList 中的词在 inputSet 中出现，就在 vocabList 的相应位置置位（置1）
 def setOfWords2Vec(vocabList, inputSet):
     # 初始化returnVec，初始值都为0，长度是vocabList的长度
     returnVec = [0] * len(vocabList)
@@ -42,15 +45,15 @@ def setOfWords2Vec(vocabList, inputSet):
 
 
 # 获取数据集
-listOPosts, listClasses = loadDataSet()
+# listOPosts, listClasses = loadDataSet()
 # print listOPosts
 # 获取数据set
-myVocabList = createVocabList(listOPosts)
+# myVocabList = createVocabList(listOPosts)
 # print myVocabList
-print setOfWords2Vec(myVocabList, listOPosts[0])
-print setOfWords2Vec(myVocabList, listOPosts[1])
+# print setOfWords2Vec(myVocabList, listOPosts[0])
+# print setOfWords2Vec(myVocabList, listOPosts[1])
 
-# trainCategory: 每篇文档类别标签所构成的向量trainCategory
+# trainCategory: 每篇文档类别标签所构成的 向量trainCategory。 eg: [0, 0, 0, 1],四篇文章，在第四篇文章中出现了
 def trainNB0(trainMatrix, trainCategory):
     # 获得文档总数
     numTrainDocs = len(trainMatrix)
@@ -63,18 +66,29 @@ def trainNB0(trainMatrix, trainCategory):
     p1Num = ones(numWords)  # change to ones()
     p0Denom = 2.0
     p1Denom = 2.0  # change to 2.0
-    # 遍历所有文档
+    # 遍历 trainMatrix中 所有文档
     for i in range(numTrainDocs):
         if trainCategory[i] == 1:
+            # 一旦词在某一文档中出现，该词对应的个数加1，向量相加
             p1Num += trainMatrix[i]
             p1Denom += sum(trainMatrix[i])
         else:
             p0Num += trainMatrix[i]
             p0Denom += sum(trainMatrix[i])
+    # 对每个元素做除法
     p1Vect = log(p1Num / p1Denom)  # change to log()
     p0Vect = log(p0Num / p0Denom)  # change to log()
     return p0Vect, p1Vect, pAbusive
 
+
+listOPosts, listClasses = loadDataSet()
+# 词集合
+myVocabList = createVocabList(listOPosts)
+trainMat = []
+for postInDoc in listOPosts:
+    trainMat.append(setOfWords2Vec(myVocabList, postInDoc))
+print trainMat
+p0v, p1v, pAb = trainNB0(trainMat, listClasses)
 
 def classifyNB(vec2Classify, p0Vec, p1Vec, pClass1):
     p1 = sum(vec2Classify * p1Vec) + log(pClass1)  # element-wise mult
