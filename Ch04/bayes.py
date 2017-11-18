@@ -53,7 +53,9 @@ def setOfWords2Vec(vocabList, inputSet):
 # print setOfWords2Vec(myVocabList, listOPosts[0])
 # print setOfWords2Vec(myVocabList, listOPosts[1])
 
-# trainCategory: 每篇文档类别标签所构成的 向量trainCategory。 eg: [0, 0, 0, 1],四篇文章，在第四篇文章中出现了
+# trainCategory: 每篇文档类别标签所构成的 向量trainCategory。 eg: [0, 0, 1],三篇文章，在第三篇文章中出现了
+# trainMatrix为词向量，eg[[0, 1, 1, 0, 0, 0, 1, 0, 0, 0],[0, 1, 1, 0, 0, 0, 0, 0, 0, 1],[0, 1, 1, 0, 0, 1, 0, 0, 0, 0]]
+# 其中的每个向量表示所有文章的词集合set，如果等于1表示这个词在这个文章出现过，如果等于0表示这个词在这个文章没有出现过
 def trainNB0(trainMatrix, trainCategory):
     # 获得文档总数
     numTrainDocs = len(trainMatrix)
@@ -91,6 +93,7 @@ for postInDoc in listOPosts:
     trainMat.append(setOfWords2Vec(myVocabList, postInDoc))
 print trainMat
 p0v, p1v, pAb = trainNB0(trainMat, listClasses)
+
 
 def classifyNB(vec2Classify, p0Vec, p1Vec, pClass1):
     p1 = sum(vec2Classify * p1Vec) + log(pClass1)  # element-wise mult
