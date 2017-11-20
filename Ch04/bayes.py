@@ -124,7 +124,7 @@ def bagOfWords2VecMN(vocabList, inputSet):
     returnVec = [0] * len(vocabList)
     for word in inputSet:
         if word in vocabList:
-            # 将returnVec对应的词的数量+1
+            # 将returnVec对应的词的数量+1，而不是简单的记0 1
             returnVec[vocabList.index(word)] += 1
     return returnVec
 
@@ -153,40 +153,55 @@ def testingNB():
 
 # testingNB()
 
-
+# 根据正则构建词向量，分隔符是除单词数字外的任意字符串
 def textParse(bigString):  # input is big string, #output is word list
     import re
     listOfTokens = re.split(r'\W*', bigString)
+    # 转换为小写，词袋模型
     return [tok.lower() for tok in listOfTokens if len(tok) > 2]
 
 
 def spamTest():
-    docList = [];
-    classList = [];
+    # 邮件文档数组
+    docList = []
+    # 标签数组
+    classList = []
+    # 全文数组
     fullText = []
     for i in range(1, 26):
+        # 添加垃圾邮件数据训练集
         wordList = textParse(open('email/spam/%d.txt' % i).read())
         docList.append(wordList)
         fullText.extend(wordList)
         classList.append(1)
+        # 添加普通邮件
         wordList = textParse(open('email/ham/%d.txt' % i).read())
         docList.append(wordList)
         fullText.extend(wordList)
         classList.append(0)
+    # 生成词向量
     vocabList = createVocabList(docList)  # create vocabulary
-    trainingSet = range(50);
+    # 产生1-50数组
+    trainingSet = range(50)
     testSet = []  # create test set
+    # 随机构建测试数据集
     for i in range(10):
         randIndex = int(random.uniform(0, len(trainingSet)))
         testSet.append(trainingSet[randIndex])
+        # 删除抽取出来的训练集的索引
         del (trainingSet[randIndex])
-    trainMat = [];
+    # 重新构建训练数据集
+    trainMat = []
     trainClasses = []
     for docIndex in trainingSet:  # train the classifier (get probs) trainNB0
+        # 构建所有文章的词向量数组
         trainMat.append(bagOfWords2VecMN(vocabList, docList[docIndex]))
+        # 构建所有文章的标签数组
         trainClasses.append(classList[docIndex])
+    # 获取每个标签下的 词向量概率
     p0V, p1V, pSpam = trainNB0(array(trainMat), array(trainClasses))
     errorCount = 0
+    # 用测试数据集验证准确率,循环遍历测试数据集的索引,之后去最开始初始化的数组寻找具体数据
     for docIndex in testSet:  # classify the remaining items
         wordVector = bagOfWords2VecMN(vocabList, docList[docIndex])
         if classifyNB(array(wordVector), p0V, p1V, pSpam) != classList[docIndex]:
