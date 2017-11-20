@@ -46,7 +46,7 @@ def calcShannonEnt(dataSet):
 
 # 按照给定特征划分数据集,就是过滤出每行的第axis项是value的行，并且将每行axis项去除
 # dataSet 待划分的数据集
-# axis 划分数据集的特征
+# axis 划分数据集的特征位置
 # value 特征的返回值
 def splitDataSet(dataSet, axis, value):
     retDataSet = []

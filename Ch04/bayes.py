@@ -59,9 +59,9 @@ def setOfWords2Vec(vocabList, inputSet):
 def trainNB0(trainMatrix, trainCategory):
     # 获得文档总数
     numTrainDocs = len(trainMatrix)
-    # 获取第一篇文档的词的数量
+    # 获取词集合中词的数量
     numWords = len(trainMatrix[0])
-    # 类别除以总的文档数计算概率p(ci)
+    # 计算概率p(ci)，通过类别中（有敏感词或者没有敏感词）文档数除以总的文档数来计算
     pAbusive = sum(trainCategory) / float(numTrainDocs)
     # 生成单位矩阵,如果其中一个概率值为0，那么最后的乘积也为0，为了降低这种影响，将所有词的出现数初始化为1，并将分母初始化
     # 为2
@@ -71,13 +71,16 @@ def trainNB0(trainMatrix, trainCategory):
     p1Denom = 2.0  # change to 2.0
     # 遍历 trainMatrix中 所有文档
     for i in range(numTrainDocs):
+        # 第i篇文章被定义为出现了敏感词
         if trainCategory[i] == 1:
             # 一旦词在某一文档中出现，该词对应的个数加1，向量相加
             p1Num += trainMatrix[i]
+            # 计算出现此类别的文档的总词数
             p1Denom += sum(trainMatrix[i])
         else:
             p0Num += trainMatrix[i]
             p0Denom += sum(trainMatrix[i])
+    # 对每个元素做除法，向量除标量
     # 对每个元素做除法，p1Vect向量代表了标签1的所有文章词向量中每个词的概率，p0Vect亦然，
     # pAbusive为标签类别1发生的概率
     p1Vect = log(p1Num / p1Denom)  # change to log()
@@ -85,16 +88,19 @@ def trainNB0(trainMatrix, trainCategory):
     return p0Vect, p1Vect, pAbusive
 
 
-# listOPosts, listClasses = loadDataSet()
+listOPosts, listClasses = loadDataSet()
 # 词集合
-# myVocabList = createVocabList(listOPosts)
-# trainMat = []
-# for postInDoc in listOPosts:
-#     print setOfWords2Vec(myVocabList, postInDoc)
-# for postInDoc in listOPosts:
-#     trainMat.append(setOfWords2Vec(myVocabList, postInDoc))
+myVocabList = createVocabList(listOPosts)
+# 初始化词集合
+trainMat = []
+# 把所有文章的词置入到集合trainMat中
+for postInDoc in listOPosts:
+    trainMat.append(setOfWords2Vec(myVocabList, postInDoc))
 # print trainMat
-# p0v, p1v, pAb = trainNB0(trainMat, listClasses)
+p0v, p1v, pAb = trainNB0(trainMat, listClasses)
+print p0v
+print p1v
+print pAb
 
 
 # vec2Classify 为词向量化的文章，eg: ['love', 'my', 'dalmation', 'hi', 'nice']为词集合
