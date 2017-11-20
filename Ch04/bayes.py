@@ -63,7 +63,8 @@ def trainNB0(trainMatrix, trainCategory):
     numWords = len(trainMatrix[0])
     # 类别除以总的文档数计算概率p(ci)
     pAbusive = sum(trainCategory) / float(numTrainDocs)
-    # 生成单位矩阵
+    # 生成单位矩阵,如果其中一个概率值为0，那么最后的乘积也为0，为了降低这种影响，将所有词的出现数初始化为1，并将分母初始化
+    # 为2
     p0Num = ones(numWords)
     p1Num = ones(numWords)  # change to ones()
     p0Denom = 2.0
@@ -77,24 +78,30 @@ def trainNB0(trainMatrix, trainCategory):
         else:
             p0Num += trainMatrix[i]
             p0Denom += sum(trainMatrix[i])
-    # 对每个元素做除法
+    # 对每个元素做除法，p1Vect向量代表了标签1的所有文章词向量中每个词的概率，p0Vect亦然，
+    # pAbusive为标签类别1发生的概率
     p1Vect = log(p1Num / p1Denom)  # change to log()
     p0Vect = log(p0Num / p0Denom)  # change to log()
     return p0Vect, p1Vect, pAbusive
 
 
-listOPosts, listClasses = loadDataSet()
+# listOPosts, listClasses = loadDataSet()
 # 词集合
-myVocabList = createVocabList(listOPosts)
-trainMat = []
-for postInDoc in listOPosts:
-    print setOfWords2Vec(myVocabList, postInDoc)
-for postInDoc in listOPosts:
-    trainMat.append(setOfWords2Vec(myVocabList, postInDoc))
-print trainMat
-p0v, p1v, pAb = trainNB0(trainMat, listClasses)
+# myVocabList = createVocabList(listOPosts)
+# trainMat = []
+# for postInDoc in listOPosts:
+#     print setOfWords2Vec(myVocabList, postInDoc)
+# for postInDoc in listOPosts:
+#     trainMat.append(setOfWords2Vec(myVocabList, postInDoc))
+# print trainMat
+# p0v, p1v, pAb = trainNB0(trainMat, listClasses)
 
 
+# vec2Classify 为词向量化的文章，eg: ['love', 'my', 'dalmation', 'hi', 'nice']为词集合
+# 文章为 ['love', 'my', 'dalmation']，则文章词向量化后为 [1, 1, 1, 0, 0]
+# p0Vec为标签为0的 词向量概率，eg [0.3, 0.1, 0.1, 0.1, 0.4] 代表了所有标签为0的文章对应的词集合中的概率
+
+# 给定一个词向量化好的文章，断定属于哪个分类
 def classifyNB(vec2Classify, p0Vec, p1Vec, pClass1):
     p1 = sum(vec2Classify * p1Vec) + log(pClass1)  # element-wise mult
     p0 = sum(vec2Classify * p0Vec) + log(1.0 - pClass1)
@@ -104,27 +111,41 @@ def classifyNB(vec2Classify, p0Vec, p1Vec, pClass1):
         return 0
 
 
+# 词集合中每个词只能出现一次，有的词在文档中出现多次，所以出现如下的文档词袋模式
+# vocabList为词向量，inputSet为需要分析的文档
 def bagOfWords2VecMN(vocabList, inputSet):
+    # 初始化零向量
     returnVec = [0] * len(vocabList)
     for word in inputSet:
         if word in vocabList:
+            # 将returnVec对应的词的数量+1
             returnVec[vocabList.index(word)] += 1
     return returnVec
 
 
 def testingNB():
+    # 初始化数据集，listOPosts为文章数组， listClasses为标签分类数组，是否包含目标词汇
     listOPosts, listClasses = loadDataSet()
+    # 抽取所有文章的词组成集合
     myVocabList = createVocabList(listOPosts)
     trainMat = []
     for postinDoc in listOPosts:
+        # 对于每一篇文章，构建对应的词向量，如果 postinDoc的词 在 myVocabList中出现，则将相对应的位置置位
+        # 之后追加到trainMat矩阵中
         trainMat.append(setOfWords2Vec(myVocabList, postinDoc))
+    # 训练数据，trainMat 为每篇文章的词向量组成的集合，listClasses 为每篇文章的对应的标签分类数组
     p0V, p1V, pAb = trainNB0(array(trainMat), array(listClasses))
+    # 测试实体
     testEntry = ['love', 'my', 'dalmation']
+    # 构建测试实体的对应的词向量
     thisDoc = array(setOfWords2Vec(myVocabList, testEntry))
     print testEntry, 'classified as: ', classifyNB(thisDoc, p0V, p1V, pAb)
     testEntry = ['stupid', 'garbage']
     thisDoc = array(setOfWords2Vec(myVocabList, testEntry))
     print testEntry, 'classified as: ', classifyNB(thisDoc, p0V, p1V, pAb)
+
+
+# testingNB()
 
 
 def textParse(bigString):  # input is big string, #output is word list
