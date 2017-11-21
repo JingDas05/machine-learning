@@ -5,6 +5,7 @@ Created on Oct 19, 2010
 @author: Peter
 '''
 from numpy import *
+import feedparser
 
 
 def loadDataSet():
@@ -88,19 +89,19 @@ def trainNB0(trainMatrix, trainCategory):
     return p0Vect, p1Vect, pAbusive
 
 
-listOPosts, listClasses = loadDataSet()
+# listOPosts, listClasses = loadDataSet()
 # 词集合
-myVocabList = createVocabList(listOPosts)
+# myVocabList = createVocabList(listOPosts)
 # 初始化词集合
-trainMat = []
+# trainMat = []
 # 把所有文章的词置入到集合trainMat中
-for postInDoc in listOPosts:
-    trainMat.append(setOfWords2Vec(myVocabList, postInDoc))
+# for postInDoc in listOPosts:
+#     trainMat.append(setOfWords2Vec(myVocabList, postInDoc))
 # print trainMat
-p0v, p1v, pAb = trainNB0(trainMat, listClasses)
-print p0v
-print p1v
-print pAb
+# p0v, p1v, pAb = trainNB0(trainMat, listClasses)
+# print p0v
+# print p1v
+# print pAb
 
 
 # vec2Classify 为词向量化的文章，eg: ['love', 'my', 'dalmation', 'hi', 'nice']为词集合
@@ -181,14 +182,17 @@ def spamTest():
         classList.append(0)
     # 生成词向量
     vocabList = createVocabList(docList)  # create vocabulary
-    # 产生1-50数组
+    # 产生1-50数组，即整个数据集的索引
     trainingSet = range(50)
+    # 创建测试数据集，用于检验训练后的算法的准确度
     testSet = []  # create test set
     # 随机构建测试数据集
     for i in range(10):
+        # 抽取0 - 数据集长度的随机整数
         randIndex = int(random.uniform(0, len(trainingSet)))
+        # 测试数据集 添加上步选择的数据
         testSet.append(trainingSet[randIndex])
-        # 删除抽取出来的训练集的索引
+        # 从训练数据集中删除抽取出来的测试数据集的索引
         del (trainingSet[randIndex])
     # 重新构建训练数据集
     trainMat = []
@@ -214,16 +218,24 @@ def spamTest():
 def calcMostFreq(vocabList, fullText):
     import operator
     freqDict = {}
+    # 遍历整个词向量
     for token in vocabList:
+        # 统计每个词的出现次数
         freqDict[token] = fullText.count(token)
+    # 根据出现的次数降序排序，默认是升序的
     sortedFreq = sorted(freqDict.iteritems(), key=operator.itemgetter(1), reverse=True)
+    # 取排名靠前的前30个词
     return sortedFreq[:30]
 
 
+ny = feedparser.parse('https://newyork.craigslist.org/search/stp')
+print ny
+print ny['entries']
+
+
 def localWords(feed1, feed0):
-    import feedparser
-    docList = [];
-    classList = [];
+    docList = []
+    classList = []
     fullText = []
     minLen = min(len(feed1['entries']), len(feed0['entries']))
     for i in range(minLen):
@@ -239,7 +251,7 @@ def localWords(feed1, feed0):
     top30Words = calcMostFreq(vocabList, fullText)  # remove top 30 words
     for pairW in top30Words:
         if pairW[0] in vocabList: vocabList.remove(pairW[0])
-    trainingSet = range(2 * minLen);
+    trainingSet = range(2 * minLen)
     testSet = []  # create test set
     for i in range(20):
         randIndex = int(random.uniform(0, len(trainingSet)))
