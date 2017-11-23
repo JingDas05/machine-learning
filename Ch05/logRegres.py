@@ -13,10 +13,10 @@ from numpy import *
 # print eg
 
 # 构建测试数据集
-def loadDataSet():
+def loadDataSet(filePath):
     dataMat = []
     labelMat = []
-    fr = open('testSet.txt')
+    fr = open(filePath)
     # 遍历测试数据集
     for line in fr.readlines():
         # 每行按照空格拆分
@@ -27,6 +27,10 @@ def loadDataSet():
         labelMat.append(int(lineArr[2]))
     return dataMat, labelMat
 
+
+# dataArr, labelMat = loadDataSet()
+
+
 # S形函数（阶跃函数）
 def sigmoid(inX):
     # exp(-inX) 是取指数，即 e的-inX方
@@ -34,22 +38,32 @@ def sigmoid(inX):
 
 
 def gradAscent(dataMatIn, classLabels):
+    # 转换成Numpy的矩阵
     dataMatrix = mat(dataMatIn)  # convert to NumPy matrix
+    # 转换成Numpy的矩阵，并且转置
     labelMat = mat(classLabels).transpose()  # convert to NumPy matrix
+    # 获取数据矩阵的行，列数
     m, n = shape(dataMatrix)
+    # 目标移动的步长
     alpha = 0.001
+    # 迭代次数
     maxCycles = 500
     weights = ones((n, 1))
     for k in range(maxCycles):  # heavy on matrix operations
+        # 这里是在计算真实类别和预测类别的差值，接下来就是按照该差值方向调整回归系数
         h = sigmoid(dataMatrix * weights)  # matrix mult
         error = (labelMat - h)  # vector subtraction
         weights = weights + alpha * dataMatrix.transpose() * error  # matrix mult
     return weights
 
 
+# dataArr, labelMat = loadDataSet()
+# gradAscent(dataArr, labelMat)
+
+
 def plotBestFit(weights):
     import matplotlib.pyplot as plt
-    dataMat, labelMat = loadDataSet()
+    dataMat, labelMat = loadDataSet('testSet.txt')
     dataArr = array(dataMat)
     n = shape(dataArr)[0]
     xcord1 = []
@@ -75,11 +89,17 @@ def plotBestFit(weights):
     plt.show()
 
 
+# dataMat, labelMat = loadDataSet()
+# weights = gradAscent(dataMat, labelMat)
+# plotBestFit(weights.getA())
+
+
 def stocGradAscent0(dataMatrix, classLabels):
     m, n = shape(dataMatrix)
     alpha = 0.01
     weights = ones(n)  # initialize to all ones
     for i in range(m):
+        # 此处的h是数值，不是向量
         h = sigmoid(sum(dataMatrix[i] * weights))
         error = classLabels[i] - h
         weights = weights + alpha * error * dataMatrix[i]
@@ -90,13 +110,17 @@ def stocGradAscent1(dataMatrix, classLabels, numIter=150):
     m, n = shape(dataMatrix)
     weights = ones(n)  # initialize to all ones
     for j in range(numIter):
+        # 构建数据集的索引数组
         dataIndex = range(m)
+        # 遍历整个数据集
         for i in range(m):
             alpha = 4 / (1.0 + j + i) + 0.0001  # apha decreases with iteration, does not
+            # 随机选取数据集中的数据更新
             randIndex = int(random.uniform(0, len(dataIndex)))  # go to 0 because of the constant
             h = sigmoid(sum(dataMatrix[randIndex] * weights))
             error = classLabels[randIndex] - h
             weights = weights + alpha * error * dataMatrix[randIndex]
+            # 从列表中删除该值
             del (dataIndex[randIndex])
     return weights
 
