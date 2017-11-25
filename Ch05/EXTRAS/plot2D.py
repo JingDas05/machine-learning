@@ -1,3 +1,4 @@
+# -*- coding: UTF-8 -*-
 '''
 Created on Oct 6, 2010
 
@@ -9,31 +10,37 @@ import matplotlib.pyplot as plt
 from matplotlib.patches import Rectangle
 from Ch05 import logRegres
 
+# 加载数据集
 dataMat, labelMat = logRegres.loadDataSet('../testSet.txt')
 dataArr = array(dataMat)
 weights = logRegres.stocGradAscent0(dataArr, labelMat)
 
 n = shape(dataArr)[0]  # number of points to create
-xcord1 = [];
+xcord1 = []
 ycord1 = []
-xcord2 = [];
+xcord2 = []
 ycord2 = []
 
 markers = []
 colors = []
+# 循环遍历所有数数据
 for i in range(n):
+    # 将标签为1的放入到xcord1，ycord1
     if int(labelMat[i]) == 1:
-        xcord1.append(dataArr[i, 1]);
+        xcord1.append(dataArr[i, 1])
         ycord1.append(dataArr[i, 2])
+    # 将标签为0的放入到xcord1，ycord1
     else:
-        xcord2.append(dataArr[i, 1]);
+        xcord2.append(dataArr[i, 1])
         ycord2.append(dataArr[i, 2])
 
+# 绘制数据散点图
 fig = plt.figure()
 ax = fig.add_subplot(111)
 # ax.scatter(xcord,ycord, c=colors, s=markers)
 type1 = ax.scatter(xcord1, ycord1, s=30, c='red', marker='s')
 type2 = ax.scatter(xcord2, ycord2, s=30, c='green')
+# 绘制分割线
 x = arange(-3.0, 3.0, 0.1)
 # weights = [-2.9, 0.72, 1.29]
 # weights = [-5, 1.09, 1.42]

@@ -52,7 +52,9 @@ def gradAscent(dataMatIn, classLabels):
     for k in range(maxCycles):  # heavy on matrix operations
         # 这里是在计算真实类别和预测类别的差值，接下来就是按照该差值方向调整回归系数
         h = sigmoid(dataMatrix * weights)  # matrix mult
+        # 标签标量值 减 阶跃函数值 等于 错误因子
         error = (labelMat - h)  # vector subtraction
+        # 重新计算权重因子：将数据集转置，乘错误因子，之后再乘步长？
         weights = weights + alpha * dataMatrix.transpose() * error  # matrix mult
     return weights
 
@@ -65,27 +67,31 @@ def plotBestFit(weights):
     import matplotlib.pyplot as plt
     dataMat, labelMat = loadDataSet('testSet.txt')
     dataArr = array(dataMat)
+    # 获取数据集行数
     n = shape(dataArr)[0]
     xcord1 = []
     ycord1 = []
     xcord2 = []
     ycord2 = []
+    # 对所有的数据进行分类，将想对应的x,y坐标记录到xcord1 = [],ycord1 = []以及xcord2 = []，ycord2 = []中
     for i in range(n):
         if int(labelMat[i]) == 1:
-            xcord1.append(dataArr[i, 1]);
+            xcord1.append(dataArr[i, 1])
             ycord1.append(dataArr[i, 2])
         else:
-            xcord2.append(dataArr[i, 1]);
+            xcord2.append(dataArr[i, 1])
             ycord2.append(dataArr[i, 2])
+    # 调用figure创建一个绘图对象，包括组成图表的所有元素
     fig = plt.figure()
     ax = fig.add_subplot(111)
     ax.scatter(xcord1, ycord1, s=30, c='red', marker='s')
     ax.scatter(xcord2, ycord2, s=30, c='green')
     x = arange(-3.0, 3.0, 0.1)
+    # 构建logistic回归方程
     y = (-weights[0] - weights[1] * x) / weights[2]
     ax.plot(x, y)
-    plt.xlabel('X1');
-    plt.ylabel('X2');
+    plt.xlabel('X1')
+    plt.ylabel('X2')
     plt.show()
 
 
@@ -105,7 +111,7 @@ def stocGradAscent0(dataMatrix, classLabels):
         weights = weights + alpha * error * dataMatrix[i]
     return weights
 
-
+# 随机最优算法 MVP
 def stocGradAscent1(dataMatrix, classLabels, numIter=150):
     m, n = shape(dataMatrix)
     weights = ones(n)  # initialize to all ones

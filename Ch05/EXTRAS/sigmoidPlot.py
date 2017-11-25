@@ -1,3 +1,4 @@
+# -*- coding: UTF-8 -*-
 '''
 Created on Oct 6, 2010
 
@@ -10,6 +11,7 @@ t = arange(-60.0, 60.3, 0.1)
 s = 1 / (1 + exp(-t))
 ax = subplot(211)
 ax.plot(t, s)
+# 画布大小 -5<x<5, 0<y<1
 ax.axis([-5, 5, 0, 1])
 plt.xlabel('x')
 plt.ylabel('Sigmoid(x)')
