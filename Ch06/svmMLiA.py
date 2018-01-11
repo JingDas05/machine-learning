@@ -1,3 +1,4 @@
+# -*- coding: UTF-8 -*-
 '''
 Created on Nov 4, 2010
 Chapter 5 source file for Machine Learing in Action
@@ -13,20 +14,26 @@ def loadDataSet(fileName):
         lineArr = line.strip().split('\t')
         dataMat.append([float(lineArr[0]), float(lineArr[1])])
         labelMat.append(float(lineArr[2]))
-    return dataMat,labelMat
+    return dataMat, labelMat
 
+# 挑选0-m之间且不等于i的随机数
 def selectJrand(i,m):
     j=i #we want to select any J not equal to i
     while (j==i):
         j = int(random.uniform(0,m))
     return j
 
+# 调整aj在L 至 H 的范围内
 def clipAlpha(aj,H,L):
-    if aj > H: 
+    if aj > H:
         aj = H
     if L > aj:
         aj = L
     return aj
+
+dataArr, labelArr = loadDataSet('testSet.txt')
+print dataArr
+print labelArr
 
 def smoSimple(dataMatIn, classLabels, C, toler, maxIter):
     dataMatrix = mat(dataMatIn); labelMat = mat(classLabels).transpose()
@@ -83,7 +90,7 @@ def kernelTrans(X, A, kTup): #calc the kernel or transform data to a higher dime
     return K
 
 class optStruct:
-    def __init__(self,dataMatIn, classLabels, C, toler, kTup):  # Initialize the structure with the parameters 
+    def __init__(self,dataMatIn, classLabels, C, toler, kTup):  # Initialize the structure with the parameters
         self.X = dataMatIn
         self.labelMat = classLabels
         self.C = C
@@ -95,12 +102,12 @@ class optStruct:
         self.K = mat(zeros((self.m,self.m)))
         for i in range(self.m):
             self.K[:,i] = kernelTrans(self.X, self.X[i,:], kTup)
-        
+
 def calcEk(oS, k):
     fXk = float(multiply(oS.alphas,oS.labelMat).T*oS.K[:,k] + oS.b)
     Ek = fXk - float(oS.labelMat[k])
     return Ek
-        
+
 def selectJ(i, oS, Ei):         #this is the second choice -heurstic, and calcs Ej
     maxK = -1; maxDeltaE = 0; Ej = 0
     oS.eCache[i] = [1,Ei]  #set valid #choose the alpha that gives the maximum delta E
@@ -121,7 +128,7 @@ def selectJ(i, oS, Ei):         #this is the second choice -heurstic, and calcs 
 def updateEk(oS, k):#after any alpha has changed update the new value in the cache
     Ek = calcEk(oS, k)
     oS.eCache[k] = [1,Ek]
-        
+
 def innerL(i, oS):
     Ei = calcEk(oS, i)
     if ((oS.labelMat[i]*Ei < -oS.tol) and (oS.alphas[i] < oS.C)) or ((oS.labelMat[i]*Ei > oS.tol) and (oS.alphas[i] > 0)):
@@ -157,7 +164,7 @@ def smoP(dataMatIn, classLabels, C, toler, maxIter,kTup=('lin', 0)):    #full Pl
     while (iter < maxIter) and ((alphaPairsChanged > 0) or (entireSet)):
         alphaPairsChanged = 0
         if entireSet:   #go over all
-            for i in range(oS.m):        
+            for i in range(oS.m):
                 alphaPairsChanged += innerL(i,oS)
                 print "fullSet, iter: %d i:%d, pairs changed %d" % (iter,i,alphaPairsChanged)
             iter += 1
@@ -168,7 +175,7 @@ def smoP(dataMatIn, classLabels, C, toler, maxIter,kTup=('lin', 0)):    #full Pl
                 print "non-bound, iter: %d i:%d, pairs changed %d" % (iter,i,alphaPairsChanged)
             iter += 1
         if entireSet: entireSet = False #toggle entire set loop
-        elif (alphaPairsChanged == 0): entireSet = True  
+        elif (alphaPairsChanged == 0): entireSet = True
         print "iteration number: %d" % iter
     return oS.b,oS.alphas
 
@@ -202,9 +209,9 @@ def testRbf(k1=1.3):
     for i in range(m):
         kernelEval = kernelTrans(sVs,datMat[i,:],('rbf', k1))
         predict=kernelEval.T * multiply(labelSV,alphas[svInd]) + b
-        if sign(predict)!=sign(labelArr[i]): errorCount += 1    
-    print "the test error rate is: %f" % (float(errorCount)/m)    
-    
+        if sign(predict)!=sign(labelArr[i]): errorCount += 1
+    print "the test error rate is: %f" % (float(errorCount)/m)
+
 def img2vector(filename):
     returnVect = zeros((1,1024))
     fr = open(filename)
@@ -227,14 +234,14 @@ def loadImages(dirName):
         if classNumStr == 9: hwLabels.append(-1)
         else: hwLabels.append(1)
         trainingMat[i,:] = img2vector('%s/%s' % (dirName, fileNameStr))
-    return trainingMat, hwLabels    
+    return trainingMat, hwLabels
 
 def testDigits(kTup=('rbf', 10)):
     dataArr,labelArr = loadImages('trainingDigits')
     b,alphas = smoP(dataArr, labelArr, 200, 0.0001, 10000, kTup)
     datMat=mat(dataArr); labelMat = mat(labelArr).transpose()
     svInd=nonzero(alphas.A>0)[0]
-    sVs=datMat[svInd] 
+    sVs=datMat[svInd]
     labelSV = labelMat[svInd];
     print "there are %d Support Vectors" % shape(sVs)[0]
     m,n = shape(datMat)
@@ -251,8 +258,8 @@ def testDigits(kTup=('rbf', 10)):
     for i in range(m):
         kernelEval = kernelTrans(sVs,datMat[i,:],kTup)
         predict=kernelEval.T * multiply(labelSV,alphas[svInd]) + b
-        if sign(predict)!=sign(labelArr[i]): errorCount += 1    
-    print "the test error rate is: %f" % (float(errorCount)/m) 
+        if sign(predict)!=sign(labelArr[i]): errorCount += 1
+    print "the test error rate is: %f" % (float(errorCount)/m)
 
 
 '''#######********************************
@@ -260,7 +267,7 @@ Non-Kernel VErsions below
 '''#######********************************
 
 class optStructK:
-    def __init__(self,dataMatIn, classLabels, C, toler):  # Initialize the structure with the parameters 
+    def __init__(self,dataMatIn, classLabels, C, toler):  # Initialize the structure with the parameters
         self.X = dataMatIn
         self.labelMat = classLabels
         self.C = C
@@ -269,12 +276,12 @@ class optStructK:
         self.alphas = mat(zeros((self.m,1)))
         self.b = 0
         self.eCache = mat(zeros((self.m,2))) #first column is valid flag
-        
+
 def calcEkK(oS, k):
     fXk = float(multiply(oS.alphas,oS.labelMat).T*(oS.X*oS.X[k,:].T)) + oS.b
     Ek = fXk - float(oS.labelMat[k])
     return Ek
-        
+
 def selectJK(i, oS, Ei):         #this is the second choice -heurstic, and calcs Ej
     maxK = -1; maxDeltaE = 0; Ej = 0
     oS.eCache[i] = [1,Ei]  #set valid #choose the alpha that gives the maximum delta E
@@ -295,7 +302,7 @@ def selectJK(i, oS, Ei):         #this is the second choice -heurstic, and calcs
 def updateEkK(oS, k):#after any alpha has changed update the new value in the cache
     Ek = calcEk(oS, k)
     oS.eCache[k] = [1,Ek]
-        
+
 def innerLK(i, oS):
     Ei = calcEk(oS, i)
     if ((oS.labelMat[i]*Ei < -oS.tol) and (oS.alphas[i] < oS.C)) or ((oS.labelMat[i]*Ei > oS.tol) and (oS.alphas[i] > 0)):
@@ -331,7 +338,7 @@ def smoPK(dataMatIn, classLabels, C, toler, maxIter):    #full Platt SMO
     while (iter < maxIter) and ((alphaPairsChanged > 0) or (entireSet)):
         alphaPairsChanged = 0
         if entireSet:   #go over all
-            for i in range(oS.m):        
+            for i in range(oS.m):
                 alphaPairsChanged += innerL(i,oS)
                 print "fullSet, iter: %d i:%d, pairs changed %d" % (iter,i,alphaPairsChanged)
             iter += 1
@@ -342,6 +349,6 @@ def smoPK(dataMatIn, classLabels, C, toler, maxIter):    #full Platt SMO
                 print "non-bound, iter: %d i:%d, pairs changed %d" % (iter,i,alphaPairsChanged)
             iter += 1
         if entireSet: entireSet = False #toggle entire set loop
-        elif (alphaPairsChanged == 0): entireSet = True  
+        elif (alphaPairsChanged == 0): entireSet = True
         print "iteration number: %d" % iter
     return oS.b,oS.alphas

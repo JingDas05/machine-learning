@@ -140,35 +140,46 @@ def classifyVector(inX, weights):
 
 
 def colicTest():
-    frTrain = open('horseColicTraining.txt');
+    frTrain = open('horseColicTraining.txt')
     frTest = open('horseColicTest.txt')
-    trainingSet = [];
+    trainingSet = []
     trainingLabels = []
+    # 遍历训练数据集
     for line in frTrain.readlines():
         currLine = line.strip().split('\t')
         lineArr = []
+        # 依次遍历每列数据
         for i in range(21):
             lineArr.append(float(currLine[i]))
+        # 构建当前行的训练数据集
         trainingSet.append(lineArr)
+        # 构建标签列
         trainingLabels.append(float(currLine[21]))
+    # 求解最优回归系数，迭代次数1000
     trainWeights = stocGradAscent1(array(trainingSet), trainingLabels, 1000)
-    errorCount = 0;
+    # 用测试数据集计算错误率
+    errorCount = 0
     numTestVec = 0.0
     for line in frTest.readlines():
         numTestVec += 1.0
         currLine = line.strip().split('\t')
         lineArr = []
+        # 读取测试数据集的每行数据
         for i in range(21):
             lineArr.append(float(currLine[i]))
+        # 将预测的结果和实际的结果进行比较，如果不相等，错误值+1
         if int(classifyVector(array(lineArr), trainWeights)) != int(currLine[21]):
             errorCount += 1
+    # 计算错误率
     errorRate = (float(errorCount) / numTestVec)
     print "the error rate of this test is: %f" % errorRate
     return errorRate
 
+colicTest()
 
+# 测试10次取平均值
 def multiTest():
-    numTests = 10;
+    numTests = 10
     errorSum = 0.0
     for k in range(numTests):
         errorSum += colicTest()
