@@ -111,6 +111,7 @@ def stocGradAscent0(dataMatrix, classLabels):
         weights = weights + alpha * error * dataMatrix[i]
     return weights
 
+
 # 随机最优算法 MVP
 def stocGradAscent1(dataMatrix, classLabels, numIter=150):
     m, n = shape(dataMatrix)
@@ -175,7 +176,9 @@ def colicTest():
     print "the error rate of this test is: %f" % errorRate
     return errorRate
 
+
 colicTest()
+
 
 # 测试10次取平均值
 def multiTest():

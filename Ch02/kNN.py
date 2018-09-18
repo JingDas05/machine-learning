@@ -19,18 +19,18 @@ import matplotlib
 import matplotlib.pyplot as plt
 
 
-# inX 用于分类的向量
+# inX 要分类的目标向量
 # dataSet 输入的训练样本集
 # labels 标签向量
 # k 选择最近邻居的数目
 def classify0(inX, dataSet, labels, k):
     # 获取dataSet行数
     dataSetSize = dataSet.shape[0]
-    # 调用tile函数,生成目标矩阵，之后与数据集相减
+    # 调用tile函数，将inX重复为 dataSetSize行，1列，之后与数据集相减
     diffMat = tile(inX, (dataSetSize, 1)) - dataSet
     # 平方
     sqDiffMat = diffMat ** 2
-    # axis=0 是按行求和， axis=1是按列求和
+    # axis=0 是按列求和， axis=1是按行求和
     sqDistances = sqDiffMat.sum(axis=1)
     # 开方
     distances = sqDistances ** 0.5
@@ -47,7 +47,7 @@ def classify0(inX, dataSet, labels, k):
     # 调用sorted函数，对字典进行排序，排序的字段是value(引用了操作符模块的功能)，默认是升序，这里reverse=True，为降序
     # 根据出现的次数降序，不改变原数组
     sortedClassCount = sorted(classCount.iteritems(), key=operator.itemgetter(1), reverse=True)
-    # 返回出现次数最多的标签
+    # 返回出现次数最多的标签,sortedClassCount是数组 [('a',6), ('b',1)]数组里面是元组，元组不可变
     return sortedClassCount[0][0]
 
 
@@ -60,7 +60,7 @@ def createDataSet():
 # group, labels = createDataSet()
 # print(classify0([0, 0], group, labels, 3))
 
-# 构建约会网站的测试样本
+# 构建约会网站的测试样本，returnMat为数据，datingLabels为标签列
 def file2matrix(filename):
     fr = open(filename)
     # 获取文件的行数
@@ -87,10 +87,11 @@ def file2matrix(filename):
 datingDataMat, datingLabels = file2matrix('data/datingTestSet2.txt')
 
 
-# print datingDataMat
+print datingDataMat
 # print datingLabels
 
 # 自动将数字特征值转化为0到1的区间，计算公式为 newValue = (oldValue-min)/(max-min)
+# 向量操作
 def autoNorm(dataSet):
     # 选取列的最小值
     minVals = dataSet.min(0)
@@ -139,7 +140,7 @@ def datingClassTest():
 
 
 # datingClassTest()
-
+#
 def img2vector(filename):
     returnVect = zeros((1, 1024))
     fr = open(filename)
