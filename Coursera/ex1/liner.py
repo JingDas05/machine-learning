@@ -6,8 +6,10 @@ import matplotlib.pyplot as plt
 # 初始化数据
 def init():
     data = np.loadtxt('ex1data1.txt', delimiter=',')
-    # 在第一列插入 偏置项
-    data = np.insert(data, 0, np.ones(data.shape[0]), axis=1)
+    # 取数据集第一列，并且添加偏置项 列1
+    # insert 的逻辑需要注意下data[:, :2]是100×2，np.ones((1, data.shape[0]))是1×100
+    # 可以理解为对所有的axis=1(行操作)的数据在0列之前添加 np.ones
+    data = np.insert(data, 0, np.ones([1, data.shape[0]]), axis=1)
     x = data[:, :2]
     y = data[:, -1].reshape(data.shape[0], 1)
     # 随机初始化系数
