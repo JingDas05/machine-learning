@@ -39,8 +39,9 @@ def sigmoid(x):
     return 1 / (1 + np.exp(-x))
 
 
-def predict(theta, x):
-    return np.round(sigmoid(x * theta))
+# 获取预测正确的值的百分比
+def predict(theta, x, y):
+    return np.mean(np.round(sigmoid(np.dot(x, theta))) == y)
 
 
 x, y, theta = init()
@@ -56,7 +57,8 @@ def caculate_accuracy(result, x, y):
     m = x.shape[0]
     n = x.shape[1]
     trained_theta = np.array(result.x).reshape((n, 1))
-    print predict(trained_theta, x)
+    return predict(trained_theta, x, y)
 
 
-print(np.array(result.x).shape)
+print(np.array(result.x))
+print caculate_accuracy(result, x, y)
