@@ -19,6 +19,8 @@ class Copy(object):
         self.target_file_path = target_file_path
         # 创建目标文件夹
         os.mkdir(self.target_file_path)
+        # 计数
+        self.count = 1
 
     # 递归 将文件夹下面的文件全部拷贝到目标文件夹里面  initial_path : string 源文件文件夹
     def recursion_copy(self, initial_path):
@@ -33,14 +35,23 @@ class Copy(object):
                 target_file_path = os.path.join(self.target_file_path, file_name)
                 if os.path.exists(target_file_path):
                     continue
-                shutil.copyfile(file_name_path, target_file_path)
+                try:
+                    shutil.copyfile(file_name_path, target_file_path)
+                except Exception:
+                    print(target_file_path)
+                    print("target_file_path 失败")
+                else:
+                    self.count += 1
+                    print(self.count)
 
+copy = Copy("L:\\study_forever\\mix")
+copy.recursion_copy("L:\\study_forever\\book_every_day")
 
-# if __name__ == "__name__":
-#     print("开始2")
-#     if len(sys.argv) == 3:
-#         print("开始")
-#         copy = Copy(sys.argv[2])
-#         copy.recursion_copy(sys.argv[1])
-#     else:
-#         raise Exception("请输入正确的源文件和目标文件")
+    # if __name__ == "__name__":
+    #     print("开始2")
+    #     if len(sys.argv) == 3:
+    #         print("开始")
+    #         copy = Copy(sys.argv[2])
+    #         copy.recursion_copy(sys.argv[1])
+    #     else:
+    #         raise Exception("请输入正确的源文件和目标文件")
